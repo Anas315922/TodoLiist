@@ -1,0 +1,37 @@
+#modal-content {
+  color: green;
+  background-color: white;
+  width: 90%;
+  margin-top: 138px;
+}
+#modal {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.305);
+  width: 100vw;
+  height: 100vw;
+}
+body {
+  background-color: rgb(5 0 19);
+}
+.button1 {
+  border: none;
+  color: white;
+  background-color: rgb(166 1 104);
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 20px;
+  font-size: 15px;
+}
+.disabled {
+  border: none;
+  color: white;
+  background-color: rgb(166 1 104);
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 20px;
+  font-size: 15px;
+  background-color: gray;
+}
