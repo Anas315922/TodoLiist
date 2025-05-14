@@ -12,15 +12,28 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Todo from "./Todo";
 import { v4 as uuidv4 } from "uuid";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Grid from "@mui/joy/Grid";
 import { Input } from "@mui/joy";
 import { useContext, useEffect } from "react";
 import { TodoContext } from "../contexts/TodoContext";
+
+// imports to delete modal
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
+// imports to delete modal
 export default function TodoList() {
   const { todos, setTodos } = useContext(TodoContext);
   let [inputState, setInputState] = useState("");
   let [displayType, setDisplayType] = useState("all");
+  const [showDeleteModal, setshowDeleteModal] = useState(false);
+  const [modalTodo, setModalTodo] = useState({});
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+
   function handelAddClick() {
     if (inputState) {
       let newTodo = {
@@ -41,29 +54,156 @@ export default function TodoList() {
   }
 
   //    filteritaion of todos by type of dispaly   //
-  const compeltedTodos = todos.filter((t) => {
-    return t.isCompleted === true;
-  });
-  const NotCompeltedTodos = todos.filter((t) => {
-    return !t.isCompleted;
-  });
-  let TodosToapper = todos;
-  if (displayType === "completed") TodosToapper = compeltedTodos;
-  else if (displayType === "notCompelted") TodosToapper = NotCompeltedTodos;
-  let todosJSX = TodosToapper.map((t) => {
-    return <Todo todo={t} key={t.id} />;
-  });
-  //    filteritaion of todos by type of dispaly   //
+  const compeltedTodos = useMemo(() => {
+    return todos.filter((t) => {
+      return t.isCompleted === true;
+    });
+  }, [todos]);
 
+  const NotCompeltedTodos = useMemo(() => {
+    return todos.filter((t) => {
+      return t.isCompleted === false;
+    });
+  }, [todos]);
+
+  //  End of filteritaion of todos by type of dispaly   //
+
+  //first Time to get the todos from local storage
   useEffect(() => {
     let storageTodos = JSON.parse(localStorage.getItem("todos")) ?? [];
     setTodos(storageTodos);
   }, []);
+  //first Time to get the todos from local storage
   function handleDisplayType(e) {
     setDisplayType(e.target.value);
   }
+  function handleDeleteClick(todo) {
+    setModalTodo(todo);
+    setshowDeleteModal(true);
+  }
+  function handleDeleteModalOnClose() {
+    setshowDeleteModal(false);
+  }
+  function handleDeleteConfirm() {
+    let currentTodo = todos.filter((t) => {
+      if (t.id === modalTodo.id) return false;
+      else return true;
+    });
+    setTodos(currentTodo);
+    localStorage.setItem("todos", JSON.stringify(currentTodo));
+    handleDeleteModalOnClose();
+  }
+  function handleUpdateOnClose() {
+    setShowUpdateModal(false);
+  }
+
+  function handleUpdatedConfirm() {
+    let currentTodo = todos.map((t) => {
+      if (t.id === modalTodo.id) {
+        return {
+          ...t,
+          title: modalTodo.title,
+          details: modalTodo.details,
+        };
+      } else return t;
+    });
+    setTodos(currentTodo);
+    localStorage.setItem("todos", JSON.stringify(currentTodo));
+    handleUpdateOnClose();
+  }
+  let TodosToapper = todos;
+  if (displayType === "completed") TodosToapper = compeltedTodos;
+  else if (displayType === "notCompelted") TodosToapper = NotCompeltedTodos;
+  let todosJSX = TodosToapper.map((t) => {
+    return (
+      <Todo
+        todo={t}
+        key={t.id}
+        showModalToDelete={handleDeleteClick}
+        showModalToUpdate={handleUpdateCLick}
+      />
+    );
+  });
+  function handleUpdateCLick(todo) {
+    setModalTodo(todo);
+    setShowUpdateModal(true);
+  }
   return (
     <Container maxWidth="sm">
+      {/* Delete Modal */}
+      <Dialog
+        style={{ direction: "rtl" }}
+        onClose={handleDeleteModalOnClose}
+        open={showDeleteModal}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title" style={{ width: "400px" }}>
+          هل أنت متاكد من قرار حذفك للمهمة؟
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            لا يمكن استرجاع المهمة بعد الحذف{" "}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteConfirm}>موافق</Button>
+          <Button autoFocus onClick={handleDeleteModalOnClose}>
+            إغلاق
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/*End Of Delete Modal */}
+
+      {/* Update Modal */}
+      <Dialog
+        style={{ direction: "rtl" }}
+        onClose={handleUpdateOnClose}
+        open={showUpdateModal}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title" style={{ width: "400px" }}>
+          تعديل المهمة
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            value={modalTodo.title}
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            label="العنوان"
+            type="email"
+            fullWidth
+            variant="standard"
+            onChange={(e) => {
+              setModalTodo({ ...modalTodo, title: e.target.value });
+            }}
+          />
+          <TextField
+            value={modalTodo.details}
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="email"
+            label="التفاصيل"
+            fullWidth
+            variant="standard"
+            onChange={(e) => {
+              setModalTodo({ ...modalTodo, details: e.target.value });
+            }}
+          />
+          <DialogActions>
+            <Button onClick={handleUpdatedConfirm}>تحديث</Button>
+            <Button autoFocus onClick={handleUpdateOnClose}>
+              إغلاق
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
+      {/*End Of Update Modal */}
       <Card
         sx={{
           minWidth: 275,

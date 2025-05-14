@@ -10,22 +10,9 @@ import { TodoContext } from "../contexts/TodoContext";
 import { useState } from "react";
 
 // imports to delete modal
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-// imports to delete modal
-export default function Todo({ todo, ckeckClick }) {
+export default function Todo({ todo, showModalToDelete, showModalToUpdate }) {
   const { todos, setTodos } = useContext(TodoContext);
-  const [showDeleteModal, setshowDeleteModal] = useState(false);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [updatedTodo, setUpdatedTodo] = useState({
-    title: todo.title,
-    details: todo.details,
-  });
+
   function handleCkeckClick() {
     let currentTodo = todos.map((t) => {
       if (t.id === todo.id) t.isCompleted = !t.isCompleted;
@@ -35,112 +22,17 @@ export default function Todo({ todo, ckeckClick }) {
     setTodos(currentTodo);
     localStorage.setItem("todos", JSON.stringify(currentTodo));
   }
-  function handleDeleteClick() {
-    setshowDeleteModal(true);
-  }
-  function handleDeleteModalOnClose() {
-    setshowDeleteModal(false);
-  }
-  function handleUpdateOnClose() {
-    setShowUpdateModal(false);
+
+  function handleUpdateCLick() {
+    showModalToUpdate(todo);
   }
 
-  function handleDelteConfirm() {
-    let currentTodo = todos.filter((t) => {
-      if (t.id === todo.id) return false;
-      else return true;
-    });
-    setTodos(currentTodo);
-    localStorage.setItem("todos", JSON.stringify(currentTodo));
-    handleDeleteModalOnClose();
-  }
-  function handleUpdatedConfirm() {
-    let currentTodo = todos.map((t) => {
-      if (t.id === todo.id) {
-        return { ...t, title: updatedTodo.title, details: updatedTodo.details };
-      } else return t;
-    });
-    setTodos(currentTodo);
-    localStorage.setItem("todos", JSON.stringify(currentTodo));
-    handleUpdateOnClose();
+  function handleDeleteClick() {
+    showModalToDelete(todo);
   }
 
   return (
     <>
-      {/* Delete Modal */}
-      <Dialog
-        style={{ direction: "rtl" }}
-        onClose={handleDeleteModalOnClose}
-        open={showDeleteModal}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title" style={{ width: "400px" }}>
-          هل أنت متاكد من قرار حذفك للمهمة؟
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            لا يمكن استرجاع المهمة بعد الحذف{" "}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDelteConfirm}>موافق</Button>
-          <Button autoFocus onClick={handleDeleteModalOnClose}>
-            إغلاق
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/*End Of Delete Modal */}
-
-      {/* Update Modal */}
-      <Dialog
-        style={{ direction: "rtl" }}
-        onClose={handleUpdateOnClose}
-        open={showUpdateModal}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title" style={{ width: "400px" }}>
-          تعديل المهمة
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            value={updatedTodo.title}
-            autoFocus
-            required
-            margin="dense"
-            id="name"
-            label="العنوان"
-            type="email"
-            fullWidth
-            variant="standard"
-            onChange={(e) => {
-              setUpdatedTodo({ ...updatedTodo, title: e.target.value });
-            }}
-          />
-          <TextField
-            value={updatedTodo.details}
-            autoFocus
-            required
-            margin="dense"
-            id="name"
-            name="email"
-            label="التفاصيل"
-            fullWidth
-            variant="standard"
-            onChange={(e) => {
-              setUpdatedTodo({ ...updatedTodo, details: e.target.value });
-            }}
-          />
-          <DialogActions>
-            <Button onClick={handleUpdatedConfirm}>تحديث</Button>
-            <Button autoFocus onClick={handleUpdateOnClose}>
-              إغلاق
-            </Button>
-          </DialogActions>
-        </DialogContent>
-      </Dialog>
-      {/*End Of Update Modal */}
       <Card
         style={{
           width: "100%",
@@ -169,7 +61,7 @@ export default function Todo({ todo, ckeckClick }) {
             alignItems="center"
           >
             <IconButton
-              aria-label="delete"
+              aria-label="ckeck"
               style={{
                 color: todo.isCompleted ? "white" : "#8bc34a",
                 backgroundColor: todo.isCompleted ? "#8bc34a" : "white",
@@ -190,9 +82,7 @@ export default function Todo({ todo, ckeckClick }) {
                 border: "solid #242454 3px",
               }}
               className="classButton"
-              onClick={() => {
-                setShowUpdateModal(true);
-              }}
+              onClick={handleUpdateCLick}
             >
               <EditIcon />
             </IconButton>
