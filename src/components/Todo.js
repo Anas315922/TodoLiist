@@ -43,7 +43,7 @@ export default function Todo({ todo, showModalToDelete, showModalToUpdate }) {
         className="cardClass"
       >
         <Grid container spacing={2} alignItems={"center"}>
-          <Grid size={7} marginRight={"10px"}>
+          <Grid size={6} marginRight={"10px"}>
             <h3
               style={{
                 margin: "10px",
@@ -55,7 +55,7 @@ export default function Todo({ todo, showModalToDelete, showModalToUpdate }) {
             <p style={{ fontSize: "20px" }}>{todo.details} </p>
           </Grid>
           <Grid
-            size={4}
+            size={5}
             display="flex"
             justifyContent=" space-between"
             alignItems="center"
