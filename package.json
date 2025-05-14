@@ -1,7 +1,7 @@
 {
   "name": "first-react-app",
   "version": "0.1.0",
-  "homepage": "https://Anas315922.github.io/react-TodoList",
+  "homepage": "https://Anas315922.github.io/TodoLiist",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
